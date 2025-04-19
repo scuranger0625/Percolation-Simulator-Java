@@ -1,32 +1,55 @@
-# Percolation-Simulator-Java
+# 📘 Percolation & PercolationStats (Princeton Algorithm Assignment)
 
-This project implements a percolation simulation based on the assignment from the Princeton Algorithms course on Coursera.
+本專案模擬 **N×N 網格的滲流現象**，使用 **加權快速合併並查集 (WeightedQuickUnionUF)** 實作演算法，並透過 **蒙地卡羅模擬法** 推估滲流臨界值。
 
-本專案為模擬滲流系統（Percolation Simulation）的 Java 程式，依據 Princeton 大學 Coursera 課程《Algorithms, Part I》之作業題目實作。
+## 🧪 Files Included | 檔案內容
 
----
+- `Percolation.java`：負責滲流邏輯模擬。
+- `PercolationStats.java`：執行多次模擬並計算統計數據。
 
-## 🧠 Description | 專案說明
+## ✅ Features | 功能特色
 
-The simulation models a percolation system using an N-by-N grid. Each site can be either open or blocked. The system **percolates** if there is a full path from the top row to the bottom row through open sites.
+- 使用高效能的滲流檢測並處理反沖洗問題。
+- 利用 `StdRandom.uniformInt()` 隨機開啟節點。
+- 支援以下統計計算：
+  - `mean()` 平均滲流閾值
+  - `stddev()` 標準差
+  - `95% confidence interval` 信賴區間估計
+- 通過所有風格檢查、正確性、記憶體與效能測試。
 
-本模擬以 N×N 的網格作為滲流系統模型，每個格子可為「開啟」或「封閉」。若存在一條從上排連通到底排的通路，則稱系統**成功滲流（Percolates）**。
+## 🔬 How It Works | 原理說明
 
-### Included Files | 檔案內容：
+1. 從一個所有節點都被封鎖的 N×N 網格開始。
+2. 隨機開啟一個節點直到上方連通到底部（系統滲流）。
+3. 記錄已開啟節點數與總節點數的比例。
+4. 重複上述步驟 T 次。
+5. 輸出統計數據。
 
-- `Percolation.java`：模擬滲流邏輯，使用 Union-Find 結構追蹤連通狀態
-- `PercolationStats.java`：進行多次 Monte Carlo 模擬並統計滲流門檻
-- `Main.java`：主要執行程式，可直接啟動模擬流程
-- `algs4.jar`：Princeton 提供的輔助函式庫（包含統計工具與資料結構）
+## 🧠 Algorithms Used | 使用演算法
 
----
+- **加權快速合併並查集（Weighted Quick Union）** 搭配虛擬頂點與底部節點。
+- 全物件導向設計，不使用靜態變數。
 
-## 🛠 How to Compile & Run | 編譯與執行方式
-
-You must include `algs4.jar` in your classpath.
-
-執行前請將 `algs4.jar` 加入 classpath。
-
+## 📊 Output Example | 執行範例
 ```bash
-javac -cp .:algs4.jar Main.java Percolation.java PercolationStats.java
-java -cp .:algs4.jar Main
+> java-algs4 PercolationStats 200 100
+mean                    = 0.592643
+stddev                  = 0.008769
+95% confidence interval = [0.590827, 0.594459]
+```
+
+## 💡 Notes | 備註
+
+- 網格索引為 1-based，即從 `(1, 1)` 到 `(N, N)`。
+- 採用防禦式編程，對於非法輸入會擲出 `IllegalArgumentException`。
+
+## 🛠️ Environment | 執行環境
+
+- Java 語言
+- 使用 Princeton 的 `algs4.jar` 套件（含 StdRandom, StdStats）
+- 相容於 Coursera 自動評分系統
+
+## 🏆 Result | 評分結果
+**✅ Score: 100.00%** — 所有正確性、效能與記憶體測試皆通過。
+
+> 本專案展現了我在演算法實作與統計模擬方面的實力，能在嚴格的評分標準下，完成正確且高效的程式設計。
