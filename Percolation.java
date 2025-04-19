@@ -1,6 +1,7 @@
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
+    private static final int[][] DIRECTIONS = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // 上下左右方向
     private final int n; // 網格大小
     private final boolean[] open; // 將二維網格壓成一維陣列
     private int openCount; // 已打開格子數量
@@ -8,7 +9,6 @@ public class Percolation {
     private final WeightedQuickUnionUF ufNoBackwash; // 用於判斷是否滿格（僅含頂部虛擬節點）
     private final int virtualTop; // 頂部虛擬節點索引
     private final int virtualBottom; // 底部虛擬節點索引
-    private static final int[][] DIRECTIONS = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // 上下左右方向
 
     public Percolation(int n) {
         if (n <= 0) throw new IllegalArgumentException("Grid size must be greater than 0");
@@ -21,25 +21,26 @@ public class Percolation {
         this.ufNoBackwash = new WeightedQuickUnionUF(n * n + 1); // 只含 top，避免 backwash
     }
 
-    // 打開指定格子，並與相鄰的開格子 union
     public void open(int row, int col) {
         validate(row, col);
-        int index = xyTo1D(row, col);
-        if (open[index]) return; // 若已開則略過
+        int rowIndex = row - 1;
+        int colIndex = col - 1;
+        int index = xyTo1D(rowIndex, colIndex);
+        if (open[index]) return;
         open[index] = true;
         openCount++;
 
-        if (row == 0) {
+        if (rowIndex == 0) {
             uf.union(index, virtualTop);
             ufNoBackwash.union(index, virtualTop);
         }
-        if (row == n - 1) {
+        if (rowIndex == n - 1) {
             uf.union(index, virtualBottom);
         }
 
         for (int[] dir : DIRECTIONS) {
-            int newRow = row + dir[0];
-            int newCol = col + dir[1];
+            int newRow = rowIndex + dir[0];
+            int newCol = colIndex + dir[1];
             if (inBounds(newRow, newCol)) {
                 int neighborIndex = xyTo1D(newRow, newCol);
                 if (open[neighborIndex]) {
@@ -50,41 +51,41 @@ public class Percolation {
         }
     }
 
-    // 回傳此格子是否已被打開
     public boolean isOpen(int row, int col) {
         validate(row, col);
-        return open[xyTo1D(row, col)];
+        int rowIndex = row - 1;
+        int colIndex = col - 1;
+        if (!inBounds(rowIndex, colIndex)) throw new IllegalArgumentException("Index out of bounds");
+        return open[xyTo1D(rowIndex, colIndex)];
     }
 
-    // 回傳此格子是否與頂部虛擬點相連（可視為有水流入）
     public boolean isFull(int row, int col) {
         validate(row, col);
-        return ufNoBackwash.connected(xyTo1D(row, col), virtualTop);
+        int rowIndex = row - 1;
+        int colIndex = col - 1;
+        if (!inBounds(rowIndex, colIndex)) throw new IllegalArgumentException("Index out of bounds");
+        return ufNoBackwash.find(xyTo1D(rowIndex, colIndex)) == ufNoBackwash.find(virtualTop);
     }
 
-    // 是否已經滲流（即 top 虛擬點與 bottom 虛擬點連通）
     public boolean percolates() {
-        return uf.connected(virtualTop, virtualBottom);
+        return uf.find(virtualTop) == uf.find(virtualBottom);
     }
 
-    // 回傳目前總共開了多少格子
     public int numberOfOpenSites() {
         return openCount;
     }
 
-    // 將二維格子座標轉成一維索引（供 union-find 使用）
     private int xyTo1D(int row, int col) {
+        if (!inBounds(row, col)) throw new IllegalArgumentException("xyTo1D index out of bounds");
         return row * n + col;
     }
 
-    // 驗證格子座標是否合法
     private void validate(int row, int col) {
-        if (row < 0 || row >= n || col < 0 || col >= n) {
+        if (row < 1 || row > n || col < 1 || col > n) {
             throw new IllegalArgumentException("Index out of bounds");
         }
     }
 
-    // 確認座標是否在邊界內
     private boolean inBounds(int row, int col) {
         return row >= 0 && row < n && col >= 0 && col < n;
     }
