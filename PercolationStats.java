@@ -2,6 +2,7 @@ import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
+    private static final double CONFIDENCE_95 = 1.96;
     private final int trials;
     private final double[] thresholds;
 
@@ -17,8 +18,9 @@ public class PercolationStats {
             int opened = 0;
 
             while (!perc.percolates()) {
-                int row = StdRandom.uniformInt(n);
-                int col = StdRandom.uniformInt(n);
+                // 修正為 1-based index，避免觸發 validate() 的例外
+                int row = StdRandom.uniformInt(1, n + 1);
+                int col = StdRandom.uniformInt(1, n + 1);
                 if (!perc.isOpen(row, col)) {
                     perc.open(row, col);
                     opened++;
@@ -37,11 +39,11 @@ public class PercolationStats {
     }
 
     public double confidenceLo() {
-        return mean() - (1.96 * stddev() / Math.sqrt(trials));
+        return mean() - (CONFIDENCE_95 * stddev() / Math.sqrt(trials));
     }
 
     public double confidenceHi() {
-        return mean() + (1.96 * stddev() / Math.sqrt(trials));
+        return mean() + (CONFIDENCE_95 * stddev() / Math.sqrt(trials));
     }
 
     public static void main(String[] args) {
